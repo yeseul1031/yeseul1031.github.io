@@ -1,41 +1,31 @@
 import { useState, useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
-import { Header, Footer } from "./components/layout";
-import { PostList, Post } from "./components/pages";
-
-type PostMetadata = {
-  title: string;
-  summary: string;
-  date: string;
-  slug: string;
-};
+import Header from "./components/layout/Header";
+import Footer from "./components/layout/Footer";
+import BlogInfo from "./components/BlogInfo";
+import PostList from "./components/pages/PostList";
+import Post from "./components/pages/Post";
+import { ContextProvider } from "./contexts/Context";
 
 function App() {
-  const [posts, setPosts] = useState<PostMetadata[]>([]);
-
-  const fetchPostsMetadata = async () => {
-    const response = await fetch("./posts/metadata.json", {
-      headers: {
-        Accept: "application/json",
-      },
-    });
-    const data = await response.json();
-    setPosts(data);
-  };
-
-  useEffect(() => {
-    fetchPostsMetadata();
-  }, []);
-
   return (
-    <>
+    <ContextProvider>
       <Header />
       <Routes>
-        <Route path="/blog/" element={<PostList posts={posts} />} />
-        <Route path="/blog/posts/:year/:month/:slug" element={<Post />} />
+        {/* 홈: BlogInfo */}
+        <Route path="/" element={<BlogInfo />} />
+        <Route path="/blog/" element={<BlogInfo />} />
+
+        {/* 공부기록: 네이버 블로그 포스트만 */}
+        <Route path="/blog/study" element={<PostList />} />
+
+        {/* 소개: BlogInfo */}
+        <Route path="/blog/about" element={<BlogInfo />} />
+
+       
       </Routes>
       <Footer />
-    </>
+    </ContextProvider>
   );
 }
 

@@ -1,9 +1,9 @@
 const Footer: React.FC = () => {
   return (
     <div className="footer">
-      <div>Copyright © 2022. GarlicB All rights reserved.</div>
+      <div>Copyright © 2025. Me All rights reserved.</div>
       <a
-        href="https://github.com/GarlicB/blog/"
+        href="https://github.com/yeseul1031"
         target="_blank"
         rel="noopener noreferrer"
       >

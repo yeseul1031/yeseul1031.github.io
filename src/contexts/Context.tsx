@@ -4,7 +4,7 @@ import {
   MAIN_DARK_CSS,
   MD_LIGHT_CSS,
   MD_DARK_CSS,
-} from "./Constants";
+} from "../components/Constants"; // 실제 위치에 맞게 경로 수정
 
 type ContextType = {
   isDarkMode: boolean;
@@ -20,22 +20,20 @@ type ContextProviderProps = {
   children: ReactNode;
 };
 
-export const ContextProvider: React.FC<ContextProviderProps> = ({
-  children,
-}) => {
-  const storedDarkMode = localStorage.getItem("isDarkMode"); // 로컬스토리지에서 저장된 값 가져오기
-  const initialDarkMode = storedDarkMode ? JSON.parse(storedDarkMode) : false; // 가져온 값이 있을 경우 파싱, 없을 경우 false로 초기화
+export const ContextProvider = ({ children }: ContextProviderProps) => {
+  // 로컬스토리지에서 다크모드 상태 불러오기
+  const storedDarkMode = localStorage.getItem("isDarkMode");
+  const initialDarkMode = storedDarkMode ? JSON.parse(storedDarkMode) : false;
 
   const [isDarkMode, setIsDarkMode] = useState(initialDarkMode);
 
   const toggleTheme = () => {
-    setIsDarkMode((prevIsDarkMode: boolean) => !prevIsDarkMode);
+    setIsDarkMode((prev:boolean) => !prev);
   };
 
   // CSS 링크를 생성하고 추가하는 함수
   const createCSSLink = (id: string, href: string): HTMLLinkElement => {
-    let link = document.getElementById(id) as HTMLLinkElement;
-
+    let link = document.getElementById(id) as HTMLLinkElement | null;
     if (link) document.head.removeChild(link);
 
     link = document.createElement("link");
@@ -60,11 +58,11 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       isDarkMode ? MD_DARK_CSS : MD_LIGHT_CSS
     );
 
-    localStorage.setItem("isDarkMode", JSON.stringify(isDarkMode)); // 값이 변경될 때 로컬스토리지에 저장
+    localStorage.setItem("isDarkMode", JSON.stringify(isDarkMode));
 
     return () => {
-      document.head.removeChild(link1);
-      document.head.removeChild(link2);
+      if (link1 && document.head.contains(link1)) document.head.removeChild(link1);
+      if (link2 && document.head.contains(link2)) document.head.removeChild(link2);
     };
   }, [isDarkMode]);
 

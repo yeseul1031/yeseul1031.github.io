@@ -1,78 +1,64 @@
-import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-type PostMetadata = {
+interface RssItem {
   title: string;
-  summary: string;
-  date: string;
-  slug: string;
-};
+  link: string;
+  pubDate: string;
+  contentSnippet?: string;
+}
 
-type PostListProps = {
-  posts: PostMetadata[];
-};
+const PostList = () => {
+  const [naverPosts, setNaverPosts] = useState<RssItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-export const PostList: React.FC<PostListProps> = ({ posts }) => {
-  const [startIndex, setStartIndex] = useState<number>(0);
-  const [endIndex, setEndIndex] = useState<number>(10);
+  useEffect(() => {
+    const fetchNaverPosts = async () => {
+      try {
+        const response = await fetch("http://localhost:4000/naver-rss");
+        if (!response.ok) throw new Error("네이버 블로그 글을 불러오지 못했습니다.");
+        const data = await response.json();
+        setNaverPosts(data.items.slice(0, 10)); // 최근 10개만 표시
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "알 수 없는 오류");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchNaverPosts();
+  }, []);
 
-  const handlePagination = (newStartIndex: number, newEndIndex: number) => {
-    setStartIndex(newStartIndex);
-    setEndIndex(newEndIndex);
-    window.scrollTo(0, -40);
-  };
-
-  const paginatedPosts = posts.slice(startIndex, endIndex);
+  if (isLoading) return <div>불러오는 중...</div>;
+  if (error) return <div>오류: {error}</div>;
 
   return (
-    <div className="home">
-      {paginatedPosts.map((post, index) => {
-        const isNewYear =
-          index === 0 ||
-          post.date.slice(0, 4) !== paginatedPosts[index - 1].date.slice(0, 4);
-
-        return (
-          <div key={post.slug}>
-            {isNewYear && (
-              <div className="post-list-year">{post.date.slice(0, 4)}년</div>
-            )}
-            <Link
-              to={`/blog/posts/${post.date.slice(0, 4)}/${post.date.slice(
-                5,
-                7
-              )}/${post.slug}`}
+    <div className="naver-post-list">
+      <h2 style={{ margin: "2rem 0 1rem" }}>📚 네이버 블로그 최근 글</h2>
+      <ul style={{ listStyle: "none", padding: 0 }}>
+        {naverPosts.map((post, idx) => (
+          <li key={idx} className="naver-post-item" style={{
+            marginBottom: "1.5rem",
+            padding: "1rem",
+            background: "#f9f9f9",
+            borderRadius: "8px"
+          }}>
+            <a
+              href={post.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ textDecoration: "none", color: "#222" }}
             >
-              <div className="post-list-item">
-                <div className="post-list-title">
-                  <span>{post.title}</span>
-                </div>
-                <div className="post-list-summary">
-                  <span>{post.summary}</span>
-                </div>
-                <div className="post-list-date">{post.date}</div>
+              <div style={{ fontWeight: "bold", fontSize: "1.1rem" }}>
+                {post.title} <span style={{ fontSize: "0.9rem", color: "#03c75a" }}>🔗</span>
               </div>
-            </Link>
-          </div>
-        );
-      })}
-      <div className="pagination">
-        {startIndex > 0 && (
-          <div
-            className="move"
-            onClick={() => handlePagination(startIndex - 10, endIndex - 10)}
-          >
-            prev
-          </div>
-        )}
-        {endIndex < posts.length && (
-          <div
-            className="move"
-            onClick={() => handlePagination(startIndex + 10, endIndex + 10)}
-          >
-            next
-          </div>
-        )}
-      </div>
+              <div style={{ fontSize: "0.9rem", color: "#888" }}>{post.pubDate}</div>
+              {post.contentSnippet && (
+                <div style={{ marginTop: "0.5rem", color: "#444" }}>{post.contentSnippet}</div>
+              )}
+            </a>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
