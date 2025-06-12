@@ -1,7 +1,8 @@
 {
-  "homepage": "https://yeseul1031.github.io"
+  
 
   "name": "my-blog",
+  "homepage": "https://yeseul1031.github.io/",
   "private": true,
   "version": "0.0.0",
   "type": "module",
