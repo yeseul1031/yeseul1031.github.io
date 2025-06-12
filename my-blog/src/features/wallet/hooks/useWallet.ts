@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { ethers } from 'ethers';
 
 interface WalletState {
@@ -7,24 +6,40 @@ interface WalletState {
   balance: string;
   error: string | null;
   mnemonic: string;
+  privateKey: string;
 }
 
 export const useWallet = (): WalletState & {
-  generateNewMnemonic: () => void;
+  createWallet: () => ethers.Wallet;
   getBalance: (address: string, network: string) => Promise<void>;
+  sendTransaction: (to: string, amount: string, network: string) => Promise<ethers.providers.TransactionResponse>;
 } => {
   const [state, setState] = useState<WalletState>({
     address: '',
     balance: '0',
     error: null,
-    mnemonic: import.meta.env.VITE_MNEMONIC || ''
+    mnemonic: import.meta.env['VITE_MNEMONIC'] || '',
+    privateKey: ''
   });
+
+  const createWallet = () => {
+    const wallet = ethers.Wallet.createRandom();
+    setState(prev => ({
+      ...prev,
+      address: wallet.address,
+      mnemonic: wallet.mnemonic.phrase,
+      privateKey: wallet.privateKey,
+      balance: '0',
+      error: null
+    }));
+    return wallet;
+  };
 
   const getBalance = async (address: string, network: string) => {
     try {
       const provider = new ethers.providers.InfuraProvider(
         network,
-        import.meta.env.VITE_INFURA_KEY
+        import.meta.env['VITE_INFURA_KEY']
       );
       const balance = await provider.getBalance(address);
       setState(prev => ({
@@ -40,19 +55,35 @@ export const useWallet = (): WalletState & {
     }
   };
 
-  const generateNewMnemonic = () => {
-    const wallet = ethers.Wallet.createRandom();
-    setState({
-      address: wallet.address,
-      balance: '0',
-      error: null,
-      mnemonic: wallet.mnemonic.phrase
-    });
+  const sendTransaction = async (
+    to: string,
+    amount: string,
+    network: string
+  ) => {
+    try {
+      const provider = new ethers.providers.InfuraProvider(
+        network,
+        import.meta.env['VITE_INFURA_KEY']
+      );
+      const signer = new ethers.Wallet(state.privateKey, provider);
+      const tx = await signer.sendTransaction({
+        to,
+        value: ethers.utils.parseEther(amount)
+      });
+      return tx;
+    } catch (err) {
+      setState(prev => ({
+        ...prev,
+        error: '트랜잭션 실패'
+      }));
+      throw err;
+    }
   };
 
   return {
     ...state,
-    generateNewMnemonic,
-    getBalance
+    createWallet,
+    getBalance,
+    sendTransaction
   };
 };
