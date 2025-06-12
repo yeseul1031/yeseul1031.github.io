@@ -1,75 +1,58 @@
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 
-export const useWallet = () => {
-  const [address, setAddress] = useState('');
-  const [privateKey, setPrivateKey] = useState('');
-  const [balance, setBalance] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [transactions, setTransactions] = useState<any[]>([]);
+interface WalletState {
+  address: string;
+  balance: string;
+  error: string | null;
+  mnemonic: string;
+}
 
- 
-  const provider = new ethers.providers.JsonRpcProvider(
-    `https://${process.env.REACT_APP_DEFAULT_NETWORK}.infura.io/v3/${process.env.REACT_APP_INFURA_KEY}`
-  );
+export const useWallet = (): WalletState & {
+  generateNewMnemonic: () => void;
+  getBalance: (address: string, network: string) => Promise<void>;
+} => {
+  const [state, setState] = useState<WalletState>({
+    address: '',
+    balance: '0',
+    error: null,
+    mnemonic: import.meta.env.VITE_MNEMONIC || ''
+  });
 
-  const createWallet = () => {
+  const getBalance = async (address: string, network: string) => {
+    try {
+      const provider = new ethers.providers.InfuraProvider(
+        network,
+        import.meta.env.VITE_INFURA_KEY
+      );
+      const balance = await provider.getBalance(address);
+      setState(prev => ({
+        ...prev,
+        balance: ethers.utils.formatEther(balance),
+        error: null
+      }));
+    } catch (err) {
+      setState(prev => ({
+        ...prev,
+        error: '잔액 조회 실패'
+      }));
+    }
+  };
+
+  const generateNewMnemonic = () => {
     const wallet = ethers.Wallet.createRandom();
-    setAddress(wallet.address);
-    setPrivateKey(wallet.privateKey);
-    setError(null);
-    return wallet;
-  };
-
-  const getBalance = async (addr: string) => {
-    try {
-      const balanceWei = await provider.getBalance(addr);
-      setBalance(ethers.utils.formatEther(balanceWei));
-      setError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '잔액 조회 실패');
-    }
-  };
-
-  
-  const getHistory = async (addr: string) => {
-    try {
-      const txs = await provider.getHistory(addr);
-      setTransactions(txs);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '내역 조회 실패');
-    }
-  };
-
-  const sendTransaction = async (
-    to: string,
-    amount: string,
-    privKey: string
-  ) => {
-    try {
-      const signer = new ethers.Wallet(privKey, provider);
-      const tx = await signer.sendTransaction({
-        to,
-        value: ethers.utils.parseEther(amount),
-      });
-      const receipt = await tx.wait();
-      setError(null);
-      return receipt;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '트랜잭션 실패');
-      return null;
-    }
+    setState({
+      address: wallet.address,
+      balance: '0',
+      error: null,
+      mnemonic: wallet.mnemonic.phrase
+    });
   };
 
   return {
-    address,
-    privateKey,
-    balance,
-    error,
-    createWallet,
-    getBalance,
-    sendTransaction,
-    transactions,
-    getHistory,
+    ...state,
+    generateNewMnemonic,
+    getBalance
   };
 };

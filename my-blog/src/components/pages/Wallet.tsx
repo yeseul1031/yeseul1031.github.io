@@ -1,8 +1,16 @@
-const Wallet = () => (
-    <main>
-      <h2>지갑</h2>
-      <p>블록체인 지갑 기능을 여기에 구현할 수 있습니다.</p>
-    </main>
+// src/components/pages/Wallet.tsx
+import { WalletInfo } from '../../features/wallet/components/WalletInfo';
+import { useWallet } from '../../features/wallet/hooks/useWallet';
+
+const Wallet = () => {
+  const { address, balance, createWallet } = useWallet();
+
+  return (
+    <div>
+     
+      <WalletInfo address={address} balance={balance} onWalletCreate={createWallet} />
+    </div>
   );
-  export default Wallet;
-  
+};
+
+export default Wallet;
