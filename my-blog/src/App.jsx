@@ -6,10 +6,10 @@ import Study from './components/pages/Study';
 import About from './components/pages/About';
 import Wallet from './components/pages/Wallet';
 import Explorer from './components/pages/Explorer';
-
+import './App.css';
 
 function App() {
-    return (<div className="app-root">
+    return (<div className="app-container">
       <Header />
       <div className="main-content">
       <Routes>
