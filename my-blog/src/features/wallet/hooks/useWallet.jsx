@@ -22,7 +22,7 @@ export const useWallet = () => {
     };
     const getBalance = async (address, network) => {
         try {
-            const provider = new ethers.providers.InfuraProvider(network, import.meta.env['VITE_INFURA_KEY']);
+            const provider = new viders.JsonRpcProvider(network, import.meta.env['VITE_INFURA_KEY']);
             const balance = await provider.getBalance(address);
             setState(prev => ({
                 ...prev,
@@ -39,7 +39,7 @@ export const useWallet = () => {
     };
     const sendTransaction = async (to, amount, network) => {
         try {
-            const provider = new ethers.providers.InfuraProvider(network, import.meta.env['VITE_INFURA_KEY']);
+            const provider = new ethers.JsonRpcProvider(network, import.meta.env['VITE_INFURA_KEY']);
             const signer = new ethers.Wallet(state.privateKey, provider);
             const tx = await signer.sendTransaction({
                 to,

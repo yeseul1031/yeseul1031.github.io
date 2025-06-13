@@ -9,7 +9,7 @@ interface WalletState {
 export declare const useWallet: () => WalletState & {
     createWallet: () => ethers.Wallet;
     getBalance: (address: string, network: string) => Promise<void>;
-    sendTransaction: (to: string, amount: string, network: string) => Promise<ethers.providers.TransactionResponse>;
+    sendTransaction: (to: string, amount: string, network: string) => Promise<ethers.TransactionResponse>;
     generateNewMnemonic: () => void;
 };
 export {};

@@ -7,9 +7,9 @@ export const sendTransaction = async (
   to: string,
   amount: string,
   network: string
-): Promise<ethers.providers.TransactionResponse> => {
+): Promise<ethers.TransactionResponse> => {
   try {
-    const provider = new ethers.providers.InfuraProvider(
+    const provider = new ethers.JsonRpcProvider(
       network,
       import.meta.env['VITE_INFURA_KEY']
     );
@@ -31,9 +31,9 @@ export const sendTransaction = async (
 export const getTransactionHistory = async (
   address: string,
   network: string
-): Promise<ethers.providers.TransactionResponse[]> => {
+): Promise<ethers.TransactionResponse[]> => {
   try {
-    const provider = new ethers.providers.EtherscanProvider(
+    const provider = new ethers.JsonRpcProvider(
       network,
       import.meta.env['VITE_ETHERSCAN_API_KEY']
     );

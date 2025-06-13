@@ -5,6 +5,9 @@ import Home from './components/pages/Home';
 import Study from './components/pages/Study';
 import About from './components/pages/About';
 import Wallet from './components/pages/Wallet';
+import Explorer from './components/pages/Explorer';
+
+
 function App() {
     return (<div className="app-root">
       <Header />
@@ -14,6 +17,7 @@ function App() {
         <Route path="/study" element={<Study />}/>
         <Route path="/about" element={<About />}/>
         <Route path="/wallet" element={<Wallet />}/>
+        <Route path="/explorer" element={<Explorer />} /> 
       </Routes>
       </div>
       <Footer />

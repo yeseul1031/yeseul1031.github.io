@@ -12,7 +12,7 @@ interface WalletState {
 export const useWallet = (): WalletState & {
   createWallet: () => ethers.Wallet;
   getBalance: (address: string, network: string) => Promise<void>;
-  sendTransaction: (to: string, amount: string, network: string) => Promise<ethers.providers.TransactionResponse>;
+  sendTransaction: (to: string, amount: string, network: string) => Promise<ethers.TransactionResponse>;
   generateNewMnemonic: () => void; 
 } => {
   const [state, setState] = useState<WalletState>({
@@ -38,7 +38,7 @@ export const useWallet = (): WalletState & {
 
   const getBalance = async (address: string, network: string) => {
     try {
-      const provider = new ethers.providers.InfuraProvider(
+      const provider = new ethers.JsonRpcProvider(
         network,
         import.meta.env['VITE_INFURA_KEY']
       );
@@ -62,7 +62,7 @@ export const useWallet = (): WalletState & {
     network: string
   ) => {
     try {
-      const provider = new ethers.providers.InfuraProvider(
+      const provider = new ethers.JsonRpcProvider(
         network,
         import.meta.env['VITE_INFURA_KEY']
       );

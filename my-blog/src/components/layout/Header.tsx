@@ -7,7 +7,8 @@ const Header = () => (
       <Link to="/" style={{ color: "#fff", margin: "0 1rem" }}>홈</Link>
       <Link to="/study" style={{ color: "#fff", margin: "0 1rem" }}>공부기록</Link>
       <Link to="/about" style={{ color: "#fff", margin: "0 1rem" }}>소개</Link>
-      <Link to="/wallet" style={{ color: "#fff", margin: "0 1rem" }}>지갑</Link>
+      <Link to="/wallet" style={{ color: "#fff", margin: "0 1rem" }}>wallet</Link>
+      <Link to="/explorer" style={{ color: "#fff", margin: "0 1rem" }}>Explorer</Link>
     </nav>
   </header>
 );
