@@ -1,56 +1,55 @@
-import { useState, useEffect } from 'react';
+import {useEffect } from 'react';
 import Modal from 'react-modal';
-import { useWallet } from '../hooks/useWallet';
 
-Modal.setAppElement('#root');
+interface WalletInfoProps {
+  address: string;
+  balance: string;
+  error?: string | null;
+  mnemonic: string;
+  network: string;
+  isLoading: boolean;
+  copyFeedback: string;
+  to: string;
+  amount: string;
+  txResult: string | null;
+  showMnemonic: boolean;
+  onNetworkChange: (network: string) => void;
+  onCopy: (text: string) => void;
+  onShowMnemonic: (show: boolean) => void;
+  onGenerateNewMnemonic: () => void;
+  onGetBalance: (address: string, network: string) => void;
+  onSend: (e: React.FormEvent) => void;
+  onToChange: (v: string) => void;
+  onAmountChange: (v: string) => void;
+}
 
-export const WalletInfo = () => {
-  const {
-    address,
-    balance,
-    error,
-    mnemonic,
-    generateNewMnemonic,
-    getBalance,
-    sendTransaction
-  } = useWallet();
-
-  const [showMnemonic, setShowMnemonic] = useState(false);
-  const [network, setNetwork] = useState('sepolia');
-  const [to, setTo] = useState('');
-  const [amount, setAmount] = useState('');
-  const [txResult, setTxResult] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [copyFeedback, setCopyFeedback] = useState('');
-
+const WalletInfo: React.FC<WalletInfoProps> = ({
+  address,
+  balance,
+  error,
+  mnemonic,
+  network,
+  isLoading,
+  copyFeedback,
+  to,
+  amount,
+  txResult,
+  showMnemonic,
+  onNetworkChange,
+  onCopy,
+  onShowMnemonic,
+  onGenerateNewMnemonic,
+  onGetBalance,
+  onSend,
+  onToChange,
+  onAmountChange,
+}) => {
   useEffect(() => {
     if (address) {
-      setIsLoading(true);
-      getBalance(address, network).finally(() => setIsLoading(false));
+      onGetBalance(address, network);
     }
-  }, [address, network, getBalance]);
-
-  const handleCopy = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopyFeedback('복사 완료!');
-    setTimeout(() => setCopyFeedback(''), 1500);
-  };
-
-  const handleSend = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setTxResult(null);
-    setIsLoading(true);
-    try {
-      const receipt = await sendTransaction(to, amount, network);
-      setTxResult(`트랜잭션 성공! 해시: ${receipt.hash}`);
-      setTo('');
-      setAmount('');
-    } catch (err) {
-      setTxResult('트랜잭션 실패');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    // eslint-disable-next-line
+  }, [address, network]);
 
   return (
     <div style={{
@@ -72,7 +71,7 @@ export const WalletInfo = () => {
         <label style={{ minWidth: 80 }}>네트워크</label>
         <select
           value={network}
-          onChange={e => setNetwork(e.target.value)}
+          onChange={e => onNetworkChange(e.target.value)}
           style={{
             flex: 1,
             padding: '0.7rem 1rem',
@@ -110,7 +109,7 @@ export const WalletInfo = () => {
             }}
           />
           <button
-            onClick={() => handleCopy(address)}
+            onClick={() => onCopy(address)}
             style={{
               padding: "0.7rem 1.5rem",
               borderRadius: 8,
@@ -141,7 +140,7 @@ export const WalletInfo = () => {
           <label style={{ minWidth: 80 }}>잔액</label>
           <span style={{ flex: 1, fontSize: 16 }}>{isLoading ? "조회 중..." : `${balance} ETH`}</span>
           <button
-            onClick={() => getBalance(address, network)}
+            onClick={() => onGetBalance(address, network)}
             style={{
               padding: "0.7rem 1.5rem",
               borderRadius: 8,
@@ -166,7 +165,7 @@ export const WalletInfo = () => {
         gap: 20
       }}>
         <button
-          onClick={generateNewMnemonic}
+          onClick={onGenerateNewMnemonic}
           style={{
             padding: "0.7rem 2.5rem",
             borderRadius: 8,
@@ -182,7 +181,7 @@ export const WalletInfo = () => {
         </button>
         {address && (
           <button
-            onClick={() => setShowMnemonic(true)}
+            onClick={() => onShowMnemonic(true)}
             style={{
               padding: "0.7rem 2.5rem",
               borderRadius: 8,
@@ -201,7 +200,7 @@ export const WalletInfo = () => {
 
       {/* 송금 폼 */}
       {address && (
-        <form onSubmit={handleSend} style={{
+        <form onSubmit={onSend} style={{
           width: '100%',
           display: 'flex',
           flexDirection: 'column',
@@ -214,7 +213,7 @@ export const WalletInfo = () => {
             type="text"
             placeholder="받는 주소"
             value={to}
-            onChange={e => setTo(e.target.value)}
+            onChange={e => onToChange(e.target.value)}
             style={{
               width: '80%',
               padding: '0.7rem',
@@ -229,7 +228,7 @@ export const WalletInfo = () => {
             type="number"
             placeholder="보낼 금액 (ETH)"
             value={amount}
-            onChange={e => setAmount(e.target.value)}
+            onChange={e => onAmountChange(e.target.value)}
             style={{
               width: '80%',
               padding: '0.7rem',
@@ -286,82 +285,82 @@ export const WalletInfo = () => {
 
       {/* 니모닉 모달 */}
       <Modal
-  isOpen={showMnemonic}
-  onRequestClose={() => setShowMnemonic(false)}
-  style={{
-    content: {
-      maxWidth: 700,
-      minWidth: 400,
-      width: '80vw',
-      height: 'auto',
-      maxHeight: 180, // 세로 제한
-      margin: "auto",
-      padding: "1.5rem",
-      borderRadius: 12,
-      textAlign: "center",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      boxSizing: "border-box"
-    }
-  }}
-  ariaHideApp={false}
->
-  <h3 style={{ color: "#c0392b", marginBottom: 16, fontSize: 16 }}>⚠️ 니모닉 구문</h3>
-  <div
-    style={{
-      background: "#f8f9fa",
-      padding: "1rem",
-      borderRadius: 8,
-      marginBottom: 16,
-      fontSize: 14,
-      fontWeight: 500,
-      color: "#222",
-      width: "100%",
-      maxWidth: 640,
-      overflowX: "auto",
-      whiteSpace: "nowrap",
-      boxSizing: "border-box"
-    }}
-  >
-    <code>{mnemonic}</code>
-  </div>
-  <div style={{ display: 'flex', gap: 12 }}>
-    <button
-      onClick={() => handleCopy(mnemonic)}
-      style={{
-        padding: "0.5rem 1.5rem",
-        borderRadius: 8,
-        border: "none",
-        background: "#eee",
-        color: "#111",
-        fontWeight: 500,
-        fontSize: 14,
-        cursor: "pointer"
-      }}
-    >
-      복사
-    </button>
-    <button
-      onClick={() => setShowMnemonic(false)}
-      style={{
-        padding: "0.5rem 1.5rem",
-        borderRadius: 8,
-        border: "none",
-        background: "#e74c3c",
-        color: "#fff",
-        fontWeight: 500,
-        fontSize: 14,
-        cursor: "pointer"
-      }}
-    >
-      닫기
-    </button>
-  </div>
-</Modal>
-
-
+        isOpen={showMnemonic}
+        onRequestClose={() => onShowMnemonic(false)}
+        style={{
+          content: {
+            maxWidth: 700,
+            minWidth: 400,
+            width: '80vw',
+            height: 'auto',
+            maxHeight: 180,
+            margin: "auto",
+            padding: "1.5rem",
+            borderRadius: 12,
+            textAlign: "center",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            boxSizing: "border-box"
+          }
+        }}
+        ariaHideApp={false}
+      >
+        <h3 style={{ color: "#c0392b", marginBottom: 16, fontSize: 16 }}>⚠️ 니모닉 구문</h3>
+        <div
+          style={{
+            background: "#f8f9fa",
+            padding: "1rem",
+            borderRadius: 8,
+            marginBottom: 16,
+            fontSize: 14,
+            fontWeight: 500,
+            color: "#222",
+            width: "100%",
+            maxWidth: 640,
+            overflowX: "auto",
+            whiteSpace: "nowrap",
+            boxSizing: "border-box"
+          }}
+        >
+          <code>{mnemonic}</code>
+        </div>
+        <div style={{ display: 'flex', gap: 12 }}>
+          <button
+            onClick={() => onCopy(mnemonic)}
+            style={{
+              padding: "0.5rem 1.5rem",
+              borderRadius: 8,
+              border: "none",
+              background: "#eee",
+              color: "#111",
+              fontWeight: 500,
+              fontSize: 14,
+              cursor: "pointer"
+            }}
+          >
+            복사
+          </button>
+          <button
+            onClick={() => onShowMnemonic(false)}
+            style={{
+              padding: "0.5rem 1.5rem",
+              borderRadius: 8,
+              border: "none",
+              background: "#e74c3c",
+              color: "#fff",
+              fontWeight: 500,
+              fontSize: 14,
+              cursor: "pointer"
+            }}
+          >
+            닫기
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 };
+
+export default WalletInfo;

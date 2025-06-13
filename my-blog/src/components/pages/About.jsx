@@ -1,7 +1,4 @@
-
-
-const About = () => (
-  <div style={{ maxWidth: 700, margin: "3rem auto", padding: "2rem", background: "#fff", borderRadius: 12, boxShadow: "0 2px 12px #eee" }}>
+const About = () => (<div style={{ maxWidth: 700, margin: "3rem auto", padding: "2rem", background: "#fff", borderRadius: 12, boxShadow: "0 2px 12px #eee" }}>
    
     <h1 style={{ marginBottom: 8 }}>안녕하세요👋</h1>
     <p style={{ fontSize: 18, marginBottom: 24 }}>
@@ -36,7 +33,5 @@ const About = () => (
       이 블로그는 GitHub Pages와 React로 만들었습니다.<br />
       개발 기록, 학습 노트, 프로젝트를 꾸준히 공유합니다.
     </p>
-  </div>
-);
-
+  </div>);
 export default About;

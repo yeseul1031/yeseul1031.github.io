@@ -13,6 +13,7 @@ export const useWallet = (): WalletState & {
   createWallet: () => ethers.Wallet;
   getBalance: (address: string, network: string) => Promise<void>;
   sendTransaction: (to: string, amount: string, network: string) => Promise<ethers.providers.TransactionResponse>;
+  generateNewMnemonic: () => void; 
 } => {
   const [state, setState] = useState<WalletState>({
     address: '',
@@ -80,10 +81,23 @@ export const useWallet = (): WalletState & {
     }
   };
 
+  const generateNewMnemonic = () => {
+    const wallet = ethers.Wallet.createRandom();
+    setState(prev => ({
+      ...prev,
+      mnemonic: wallet.mnemonic.phrase,
+      privateKey: wallet.privateKey,
+      address: wallet.address,
+      balance: '0',
+      error: null
+    }));
+  };
+
   return {
     ...state,
     createWallet,
     getBalance,
-    sendTransaction
+    sendTransaction,
+    generateNewMnemonic
   };
 };
