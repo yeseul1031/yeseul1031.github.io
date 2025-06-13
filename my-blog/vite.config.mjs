@@ -7,7 +7,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
-    chunkSizeWarningLimit: 1000, // 청크 크기 경고 제한 상향
+    chunkSizeWarningLimit: 1000, 
     rollupOptions: {
       output: {
         manualChunks: {

@@ -4,7 +4,7 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { visualizer } from 'rollup-plugin-visualizer';
 
 export default defineConfig({
-  base: '/explorer/',
+  base: '/',
   plugins: [
     react({
       jsxImportSource: '@emotion/react',
@@ -53,6 +53,7 @@ export default defineConfig({
   },
 
   build: {
+    outDir: 'dist',
     sourcemap: true,
     commonjsOptions: {
       transformMixedEsModules: true,
