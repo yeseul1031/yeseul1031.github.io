@@ -24,6 +24,8 @@ export default defineConfig({
   ],
   
   server: {
+    watch: {
+      usePolling: true,},
     port: 3000,
     host: true,
     open: '/explorer',
